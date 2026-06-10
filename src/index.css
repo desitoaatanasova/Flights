@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+:root {
+  --bg-deep-navy: #060B17;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --card-border: rgba(255, 255, 255, 0.10);
+  --card-hover-border: rgba(56, 189, 248, 0.30);
+  --primary: #38BDF8;
+  --secondary: #F9A8D4;
+  --text-muted-40: rgba(255, 255, 255, 0.40);
+  --text-muted-60: rgba(255, 255, 255, 0.60);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-deep-navy);
+  color: white;
+}
+
+/* Hide scrollbar for FlightRadar sidebar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
