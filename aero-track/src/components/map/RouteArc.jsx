@@ -45,7 +45,7 @@ function arrowIcon(color, angleDeg) {
   });
 }
 
-export default function RouteArc({ from, to, status }) {
+export default function RouteArc({ from, to, status, flightId, onClick }) {
   const color = STATUS_COLORS[status?.toLowerCase()] || '#6366F1';
   const points = computeBezier(from, to);
 
@@ -53,13 +53,16 @@ export default function RouteArc({ from, to, status }) {
   const prev = points.at(-2);
   const angle = Math.atan2(last[0] - prev[0], last[1] - prev[1]) * (180 / Math.PI);
 
+  const handleClick = () => onClick?.(flightId);
+
   return (
     <>
       <Polyline
         positions={points}
         pathOptions={{ color, weight: 2.5, opacity: 0.5 }}
+        eventHandlers={{ click: handleClick }}
       />
-      <Marker position={to} icon={arrowIcon(color, angle)} />
+      <Marker position={to} icon={arrowIcon(color, angle)} eventHandlers={{ click: handleClick }} />
     </>
   );
 }

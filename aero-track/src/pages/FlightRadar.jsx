@@ -112,6 +112,8 @@ export default function FlightRadar() {
               from={AIRPORT_COORDS[f.departureLocation]}
               to={AIRPORT_COORDS[f.arrivalLocation]}
               status={f.status}
+              flightId={f.flightId}
+              onClick={setSelectedId}
             />
           ))}
           {flightsWithCoords.map((f) => (
