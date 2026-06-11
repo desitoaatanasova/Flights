@@ -40,9 +40,13 @@ export default function AirlineDetail() {
 
         <GlassCard className="mb-8 bg-gradient-to-br from-pink-500/10 via-transparent to-transparent">
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center font-bold text-2xl">
-              {airline.airlineName?.charAt(0)}
-            </div>
+            {airline.logoUrl ? (
+              <img src={airline.logoUrl} alt="" className="w-16 h-16 rounded-xl bg-white p-1 object-contain" />
+            ) : (
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center font-bold text-2xl">
+                {airline.airlineName?.charAt(0)}
+              </div>
+            )}
             <div>
               <div className="font-display font-bold text-3xl text-white">{airline.airlineName}</div>
               <span className="inline-block text-xs font-semibold bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded mt-1">
