@@ -102,14 +102,14 @@ CREATE TABLE Flights (
 
 INSERT INTO Airlines (airline_name, iata_code, logo_url, country, fleet_size, hub_airport, founded_year, description) VALUES
 ('Lufthansa','LH','https://download.logo.wine/logo/Lufthansa/Lufthansa-Logo.wine.png','Germany',300,'Frankfurt Airport',1953,'Largest German airline, flag carrier of Germany'),
-('British Airways','BA','https://assets.stickpng.com/images/668e5752847a2841c9ada819.png','UK',280,'London Heathrow',1974,'Flag carrier of the United Kingdom'),
+('British Airways','BA','https://mediacentre.britishairways.com/contents/archives/216/86/images/thumb1280x1683_width/britishairways_21686125301575_thumb.jpg','UK',280,'London Heathrow',1974,'Flag carrier of the United Kingdom'),
 ('Emirates','EK','https://logos-world.net/wp-content/uploads/2020/03/Emirates-Logo-1985-1999.png','UAE',260,'Dubai International',1985,'Largest airline in the Middle East, based in Dubai'),
 ('Qatar Airways','QR','https://logos-world.net/wp-content/uploads/2020/03/Qatar-Airways-Logo.png','Qatar',200,'Hamad International',1993,'Flag carrier of Qatar'),
 ('Bulgaria Air','FB','https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Bulgaria_Air_logo.svg/3840px-Bulgaria_Air_logo.svg.png','Bulgaria',35,'Sofia Airport',2002,'Flag carrier of Bulgaria'),
 ('Air France','AF','https://www.pixartprinting.it/blog/wp-content/uploads/2020/09/2-2.jpg','France',250,'Paris Charles de Gaulle',1933,'Flag carrier of France'),
 ('Turkish Airlines','TK','https://cdn.turkishairlines.com/asset/8e28f8dd-7327-41c1-b248-51242c65b3af/THY_0038_RENKLI-c-CIFT-SATIR-YATAY-TIRE.webp','Turkey',370,'Istanbul Airport',1933,'Flag carrier of Turkey'),
 ('Wizz Air','W6','https://download.logo.wine/logo/Wizz_Air/Wizz_Air-Logo.wine.png','Hungary',180,'Budapest Ferenc Liszt',2003,'Hungarian ultra-low-cost carrier'),
-('Delta Air Lines','DL','https://assets.stickpng.com/images/61586b0b258f1e000415490d.png','USA',900,'Atlanta International',1925,'Major US airline, headquartered in Atlanta'),
+('Delta Air Lines','DL','https://deltamuseum.org/images/site/research/delta-brand/logos/16-9-logos/2000to2004_delta_logo_vector1.webp','USA',900,'Atlanta International',1925,'Major US airline, headquartered in Atlanta'),
 ('Japan Airlines','JL','https://1000logos.net/wp-content/uploads/2021/04/Japan-Airlines-logo.png','Japan',225,'Tokyo Haneda',1951,'Flag carrier of Japan');
 
 INSERT INTO Pilots (first_name, last_name, age, experience_years, nationality, co_pilot, license_number, avatar_url) VALUES
@@ -129,7 +129,7 @@ INSERT INTO Aircraft (type, model, capacity, manufacture_year, ownership, regist
 ('Airbus','A321neo',220,2020,'Airline Company','LZ-002','Turbofan',7400,'https://www.flightsimlabs.com/wp-content/uploads/2025/06/img-53-1024x563.jpg'),
 ('Boeing','737-800',189,2017,'Airline Company','LZ-003','Turbofan',5436,'https://upload.wikimedia.org/wikipedia/commons/f/ff/Delta_Boeing_737-800_N371DA_departing_Boston_June_2025.jpg'),
 ('Boeing','787-9',290,2019,'Airline Company','LZ-004','Turbofan',14140,'https://upload.wikimedia.org/wikipedia/commons/4/4e/Boeing_787_N1015B_ANA_Airlines_%2827611880663%29_%28cropped%29.jpg'),
-('Airbus','A380-800',500,2016,'Airline Company','LZ-005','Turbofan',15200,'https://upload.wikimedia.org/wikipedia/commons/0/09/A6-EDY_A380_Emirates_31_jan_2013_jfk_%28442269364%29_%28cropped%29.jpg'),
+('Airbus','A380-800',500,2016,'Airline Company','LZ-005','Turbofan',15200,'https://www.singaporeair.com/content/dam/sia/web-assets/images/flying-withus/our-story/our-fleet/airbus-a380-800/airbus-a380-800-nav.jpg'),
 ('Embraer','E190',100,2018,'Private','LZ-006','Turbojet',4445,'https://upload.wikimedia.org/wikipedia/commons/b/b3/Wider%C3%B8e%2C_LN-WEA%2C_Embraer_E190-E2_%40_HEL.jpg'),
 ('Boeing','777-300ER',368,2021,'Airline Company','LZ-007','Turbofan',13650,'https://img.static-kl.com/transform/e5e58f73-8daa-4b08-ae6b-a91ca9f62d5d/'),
 ('Airbus','A220-300',130,2022,'Airline Company','LZ-008','Turbofan',6112,'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Airbus_A220-300.jpg/1280px-Airbus_A220-300.jpg'),
