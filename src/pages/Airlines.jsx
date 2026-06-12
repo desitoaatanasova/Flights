@@ -5,21 +5,34 @@ import AirlineCard from '../components/cards/AirlineCard';
 import { CardSkeleton } from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import { aeroApi } from '../api/aeroApi';
-import { Building2 } from 'lucide-react';
+import { Building2, AlertCircle } from 'lucide-react';
 
 export default function Airlines() {
   const [airlines, setAirlines] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    aeroApi.Airline.list().then(setAirlines).finally(() => setLoading(false));
+    aeroApi.Airline.list().then(setAirlines).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const filtered = useMemo(
     () => airlines.filter((a) => a.airlineName?.toLowerCase().includes(search.toLowerCase())),
     [airlines, search]
   );
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) {
     return (

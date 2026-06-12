@@ -5,16 +5,17 @@ import PilotCard from '../components/cards/PilotCard';
 import { CardSkeleton } from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import { aeroApi } from '../api/aeroApi';
-import { User } from 'lucide-react';
+import { User, AlertCircle } from 'lucide-react';
 
 export default function Pilots() {
   const [pilots, setPilots] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [nationality, setNationality] = useState('');
 
   useEffect(() => {
-    aeroApi.Pilot.list().then(setPilots).finally(() => setLoading(false));
+    aeroApi.Pilot.list().then(setPilots).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const nationalities = useMemo(() => [...new Set(pilots.map((p) => p.nationality).filter(Boolean))], [pilots]);
@@ -25,6 +26,18 @@ export default function Pilots() {
     if (search) list = list.filter((p) => `${p.firstName} ${p.lastName}`.toLowerCase().includes(search.toLowerCase()));
     return list;
   }, [pilots, nationality, search]);
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) {
     return (

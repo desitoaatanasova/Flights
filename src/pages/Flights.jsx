@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { List, Grid3x3, Plane } from 'lucide-react';
+import { List, Grid3x3, Plane, AlertCircle } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
 import GlassCard from '../components/ui/GlassCard';
 import StatusBadge from '../components/ui/StatusBadge';
@@ -15,6 +15,7 @@ export default function Flights() {
   const navigate = useNavigate();
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [airlineFilter, setAirlineFilter] = useState('');
@@ -22,7 +23,7 @@ export default function Flights() {
   const [view, setView] = useState('grid');
 
   useEffect(() => {
-    aeroApi.Flight.list().then(setFlights).finally(() => setLoading(false));
+    aeroApi.Flight.list().then(setFlights).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const uniqueAirlines = useMemo(
@@ -46,6 +47,18 @@ export default function Flights() {
     if (!dt) return '--';
     try { return format(parseISO(dt), 'MMM dd, HH:mm'); } catch { return dt?.slice(0, 16)?.replace('T', ' ') || '--'; }
   };
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) {
     return (

@@ -14,7 +14,6 @@ function computeBezier([lat1, lng1], [lat2, lng2], numPoints = 50) {
   const dLng = lng2 - lng1;
   const dist = Math.sqrt(dLat * dLat + dLng * dLng);
 
-  // Bulge perpendicular to the line, proportional to distance
   const offset = Math.max(dist * 0.35, 0.3);
   const perpLat = -dLng / dist;
   const perpLng = dLat / dist;

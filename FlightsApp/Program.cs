@@ -7,7 +7,7 @@ DotNetEnv.Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 var host = Environment.GetEnvironmentVariable("DB_HOST") ?? "localhost";
-var dbName = "AirFlightsDB";
+var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "Flights_app";
 var user = Environment.GetEnvironmentVariable("DB_USER") ?? "flights";
 var pass = Environment.GetEnvironmentVariable("DB_PASS") ?? "root";
 

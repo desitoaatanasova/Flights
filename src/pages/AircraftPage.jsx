@@ -5,16 +5,17 @@ import AircraftCard from '../components/cards/AircraftCard';
 import { CardSkeleton } from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import { aeroApi } from '../api/aeroApi';
-import { Wrench } from 'lucide-react';
+import { Wrench, AlertCircle } from 'lucide-react';
 
 export default function AircraftPage() {
   const [aircraft, setAircraft] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
 
   useEffect(() => {
-    aeroApi.Aircraft.list().then(setAircraft).finally(() => setLoading(false));
+    aeroApi.Aircraft.list().then(setAircraft).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const types = useMemo(() => [...new Set(aircraft.map((a) => a.type).filter(Boolean))], [aircraft]);
@@ -25,6 +26,18 @@ export default function AircraftPage() {
     if (search) list = list.filter((a) => a.model?.toLowerCase().includes(search.toLowerCase()));
     return list;
   }, [aircraft, typeFilter, search]);
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) {
     return (

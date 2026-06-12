@@ -1,18 +1,78 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, MapPin, Search, X, Clock, Users, Wrench, Award } from 'lucide-react';
+import { Plane, MapPin, Search, X, Users, Wrench, Award, AlertCircle } from 'lucide-react';
 import NavBar from '../components/layout/NavBar';
 import StatusBadge from '../components/ui/StatusBadge';
 import { aeroApi } from '../api/aeroApi';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import COORDS_BY_AIRPORT from '../data/airportCoords';
+import RouteArc from '../components/map/RouteArc';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+function getFlightPosition(flight) {
+  if (flight.latitude != null && flight.longitude != null) {
+    return [flight.latitude, flight.longitude];
+  }
+  return null;
+}
+
+const STATUS_COLORS = {
+  active: '#22C55E',
+  scheduled: '#3B82F6',
+  landed: '#A78BFA',
+  delayed: '#F59E0B',
+  cancelled: '#EF4444',
+};
+
+function createStatusIcon(status, active = false) {
+  const color = STATUS_COLORS[status?.toLowerCase()] || '#6366F1';
+  const size = active ? 24 : 16;
+  return L.divIcon({
+    className: '',
+    html: `<div style="width:${size}px;height:${size}px;background:${color};border:3px solid white;border-radius:50%;box-shadow:0 0 12px ${color}99,0 2px 8px rgba(0,0,0,0.4);transition:all 0.2s;"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+  });
+}
+
+function MapBoundsUpdater({ flights, selectedId }) {
+  const map = useMap();
+
+  useEffect(() => {
+    const positions = flights.map(getFlightPosition).filter(Boolean);
+    if (positions.length > 0) {
+      const bounds = L.latLngBounds(positions);
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 5 });
+    }
+  }, [flights, map]);
+
+  useEffect(() => {
+    if (selectedId) {
+      const flight = flights.find((f) => f.flightId === selectedId);
+      const pos = flight ? getFlightPosition(flight) : null;
+      if (pos) {
+        map.flyTo(pos, 6, { duration: 0.8 });
+      }
+    }
+  }, [selectedId, flights, map]);
+
+  return null;
+}
 
 export default function FlightRadar() {
   const [flights, setFlights] = useState([]);
   const [search, setSearch] = useState('');
   const [selectedId, setSelectedId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    aeroApi.Flight.list().then(setFlights);
+    aeroApi.Flight.list()
+      .then(setFlights)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   }, []);
 
   const activeFlights = useMemo(() => flights.filter((f) => f.status === 'active'), [flights]);
@@ -30,19 +90,76 @@ export default function FlightRadar() {
 
   const selected = flights.find((f) => f.flightId === selectedId);
 
+  const flightsWithCoords = useMemo(() => filtered.filter((f) => getFlightPosition(f)), [filtered]);
+  const flightsWithRoute = useMemo(
+    () => flights.filter((f) => COORDS_BY_AIRPORT[f.departureLocation] && COORDS_BY_AIRPORT[f.arrivalLocation]),
+    [flights]
+  );
+
   return (
     <div className="h-screen flex flex-col bg-[#060B17] overflow-hidden">
-      <NavBar />
+      <NavBar solid />
       <div className="flex-1 relative flex pt-16">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0A0F1E] to-[#060B17] flex items-center justify-center">
-          <div className="text-center">
-            <Plane className="w-16 h-16 text-sky-500/20 mx-auto mb-4 animate-bounce" />
-            <p className="text-white/20 text-lg font-display font-semibold">Flight Radar Map</p>
-            <p className="text-white/10 text-sm mt-1">Leaflet map placeholder — add tiles to activate</p>
-          </div>
-        </div>
+        <MapContainer
+          center={[48, 10]}
+          zoom={3}
+          className="absolute inset-0 z-0"
+          zoomControl={false}
+          attributionControl={false}
+        >
+          <TileLayer url="https://tile.openstreetmap.org/{z}/{x}/{y}.png" />
+          {flightsWithRoute.map((f) => (
+            <RouteArc
+              key={`arc-${f.flightId}`}
+              from={COORDS_BY_AIRPORT[f.departureLocation]}
+              to={COORDS_BY_AIRPORT[f.arrivalLocation]}
+              status={f.status}
+              flightId={f.flightId}
+              onClick={setSelectedId}
+            />
+          ))}
+          {flightsWithCoords.map((f) => (
+            <Marker
+              key={f.flightId}
+              position={getFlightPosition(f)}
+              icon={createStatusIcon(f.status, selectedId === f.flightId)}
+              eventHandlers={{
+                click: () => setSelectedId(f.flightId),
+              }}
+            >
+              <Popup>
+                <div style={{ fontFamily: 'system-ui, sans-serif', minWidth: 140 }}>
+                  <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{f.flightNumber}</div>
+                  <div style={{ fontSize: 12, color: '#666' }}>{f.departureLocation} &rarr; {f.arrivalLocation}</div>
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+                    {f.airline?.airlineName || ''}
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+          <MapBoundsUpdater flights={flightsWithCoords} selectedId={selectedId} />
+        </MapContainer>
 
-        <div className="absolute left-4 top-4 z-10 w-80 space-y-3">
+        {(loading || error) && (
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0A0F1E] to-[#060B17] flex items-center justify-center z-50 transition-opacity duration-500">
+            {error ? (
+              <div className="text-center max-w-md px-6">
+                <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+                <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+                <p className="text-white/15 text-sm mt-2">{error}</p>
+                <p className="text-white/20 text-xs mt-4">Make sure the backend server is running on port 5185</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Plane className="w-16 h-16 text-sky-500/20 mx-auto mb-4 animate-bounce" />
+                <p className="text-white/20 text-lg font-display font-semibold">Loading Flight Radar...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="absolute left-4 top-4 z-[1000] w-80 space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
             <input
@@ -68,7 +185,7 @@ export default function FlightRadar() {
                   <StatusBadge status={f.status} />
                 </div>
                 <div className="flex items-center gap-1 text-white/40 text-xs mt-1">
-                  <MapPin className="w-3 h-3" />{f.departureLocation} → {f.arrivalLocation}
+                  <MapPin className="w-3 h-3" />{f.departureLocation} &rarr; {f.arrivalLocation}
                 </div>
               </button>
             ))}
@@ -86,7 +203,7 @@ export default function FlightRadar() {
               initial={{ x: 400 }}
               animate={{ x: 0 }}
               exit={{ x: 400 }}
-              className="absolute right-4 top-4 bottom-4 z-10 w-96 bg-[#0D1528]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-y-auto no-scrollbar"
+              className="absolute right-4 top-4 bottom-4 z-[1000] w-96 bg-[#0D1528]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-y-auto no-scrollbar"
             >
               <div className="p-5">
                 <div className="flex items-center justify-between mb-4">
@@ -121,9 +238,9 @@ export default function FlightRadar() {
                 </div>
 
                 <div className="h-2 bg-white/10 rounded-full overflow-hidden mb-1">
-                  <div className="h-full bg-gradient-to-r from-sky-500 to-blue-600 rounded-full" style={{ width: `${Math.min(selected.occupancy, 100)}%` }} />
+                  <div className="h-full bg-gradient-to-r from-sky-500 to-blue-600 rounded-full" style={{ width: `${Math.min((selected.occupancy / 400) * 100, 100)}%` }} />
                 </div>
-                <div className="text-xs text-white/40 mb-4">{selected.occupancy}% occupancy</div>
+                <div className="text-xs text-white/40 mb-4">{selected.occupancy} passengers</div>
 
                 <div className="space-y-2">
                   <Link to={`/airlines/${selected.airline?.airlineId}`} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition">

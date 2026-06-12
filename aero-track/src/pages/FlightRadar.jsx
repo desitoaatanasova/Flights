@@ -21,7 +21,7 @@ function getFlightPosition(flight) {
 const STATUS_COLORS = {
   active: '#22C55E',
   scheduled: '#3B82F6',
-  landed: '#6B7280',
+  landed: '#A78BFA',
   delayed: '#F59E0B',
   cancelled: '#EF4444',
 };

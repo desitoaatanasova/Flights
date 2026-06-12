@@ -5,21 +5,34 @@ import CrewCard from '../components/cards/CrewCard';
 import { CardSkeleton } from '../components/ui/LoadingSkeleton';
 import EmptyState from '../components/ui/EmptyState';
 import { aeroApi } from '../api/aeroApi';
-import { Users } from 'lucide-react';
+import { Users, AlertCircle } from 'lucide-react';
 
 export default function CrewPage() {
   const [crew, setCrew] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
-    aeroApi.Crew.list().then(setCrew).finally(() => setLoading(false));
+    aeroApi.Crew.list().then(setCrew).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const filtered = useMemo(
     () => crew.filter((c) => c.chiefAttendant?.toLowerCase().includes(search.toLowerCase())),
     [crew, search]
   );
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) {
     return (

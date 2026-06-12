@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Users, Plane, Star, Globe } from 'lucide-react';
+import { ArrowLeft, Users, Plane, Star, Globe, AlertCircle } from 'lucide-react';
 import PageLayout from '../components/layout/PageLayout';
 import GlassCard from '../components/ui/GlassCard';
 import FlightCard from '../components/cards/FlightCard';
@@ -12,6 +12,7 @@ export default function CrewDetail() {
   const [crew, setCrew] = useState(null);
   const [flights, setFlights] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -20,8 +21,20 @@ export default function CrewDetail() {
     ]).then(([c, f]) => {
       setCrew(c);
       setFlights(f.filter((fl) => fl.crewId === c.crewId));
-    }).finally(() => setLoading(false));
+    }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, [id]);
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) return <PageLayout><div className="pt-28 pb-20 max-w-7xl mx-auto px-4"><CardSkeleton /></div></PageLayout>;
   if (!crew) return <PageLayout><div className="pt-28 pb-20 max-w-7xl mx-auto px-4 text-white/50">Crew not found</div></PageLayout>;

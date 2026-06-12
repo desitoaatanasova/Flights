@@ -13,7 +13,7 @@ const links = [
   { to: '/statistics', label: 'Statistics' },
 ];
 
-export default function NavBar() {
+export default function NavBar({ solid = false }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -26,7 +26,7 @@ export default function NavBar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-[#0A0F1E]/90 backdrop-blur-xl shadow-lg' : 'bg-transparent'
+        solid || scrolled ? 'bg-[#0A0F1E]/90 backdrop-blur-xl shadow-lg' : 'bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

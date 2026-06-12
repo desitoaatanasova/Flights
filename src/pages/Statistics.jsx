@@ -7,7 +7,7 @@ import { aeroApi } from '../api/aeroApi';
 import {
   BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend
 } from 'recharts';
-import { Plane, User, Wrench, Users, Activity, Building2 } from 'lucide-react';
+import { Plane, User, Wrench, Users, Activity, Building2, AlertCircle } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload?.length) {
@@ -30,6 +30,7 @@ export default function Statistics() {
   const [crew, setCrew] = useState([]);
   const [airlines, setAirlines] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -40,7 +41,7 @@ export default function Statistics() {
       aeroApi.Airline.list(),
     ]).then(([f, p, a, c, al]) => {
       setFlights(f); setPilots(p); setAircraft(a); setCrew(c); setAirlines(al);
-    }).finally(() => setLoading(false));
+    }).catch((err) => setError(err.message)).finally(() => setLoading(false));
   }, []);
 
   const flightsPerAirline = useMemo(() => {
@@ -81,6 +82,18 @@ export default function Statistics() {
   }, [flights]);
 
   const STATUS_COLORS = { Scheduled: '#38BDF8', Active: '#22C55E', Landed: '#A78BFA', Delayed: '#EAB308', Cancelled: '#EF4444' };
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="pt-28 pb-20 max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-center min-h-[60vh]">
+          <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+          <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+          <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (loading) return <PageLayout><div className="pt-28 pb-20 max-w-7xl mx-auto px-4"><CardSkeleton /></div></PageLayout>;
 

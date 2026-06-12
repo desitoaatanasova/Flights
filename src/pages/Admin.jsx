@@ -40,6 +40,7 @@ const fieldsMap = {
     { key: 'hubAirport', label: 'Hub Airport', type: 'text' },
     { key: 'foundedYear', label: 'Founded', type: 'number' },
     { key: 'description', label: 'Description', type: 'textarea' },
+    { key: 'logoUrl', label: 'Logo URL', type: 'text' },
   ],
   aircraft: [
     { key: 'model', label: 'Model', type: 'text' },
@@ -50,6 +51,7 @@ const fieldsMap = {
     { key: 'registration', label: 'Registration', type: 'text' },
     { key: 'engineType', label: 'Engine', type: 'text' },
     { key: 'rangeKm', label: 'Range (km)', type: 'number' },
+    { key: 'imageUrl', label: 'Image URL', type: 'text' },
   ],
   pilots: [
     { key: 'firstName', label: 'First Name', type: 'text' },
@@ -58,6 +60,7 @@ const fieldsMap = {
     { key: 'experienceYears', label: 'Experience (years)', type: 'number' },
     { key: 'nationality', label: 'Nationality', type: 'text' },
     { key: 'licenseNumber', label: 'License Number', type: 'text' },
+    { key: 'avatarUrl', label: 'Avatar URL', type: 'text' },
   ],
   crew: [
     { key: 'chiefAttendant', label: 'Chief Attendant', type: 'text' },
@@ -72,6 +75,7 @@ export default function Admin() {
   const [section, setSection] = useState('flights');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
@@ -81,7 +85,8 @@ export default function Admin() {
 
   const load = () => {
     setLoading(true);
-    api.list().then(setData).finally(() => setLoading(false));
+    setError(null);
+    api.list().then(setData).catch((err) => setError(err.message)).finally(() => setLoading(false));
   };
 
   useEffect(() => { load(); }, [section]);
@@ -156,25 +161,35 @@ export default function Admin() {
         </div>
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="font-display font-bold text-2xl text-white">{currentLabel}</h1>
-              <p className="text-white/40 text-sm">{data.length} records</p>
+          {error ? (
+            <div className="flex flex-col items-center justify-center text-center min-h-[60vh]">
+              <AlertCircle className="w-16 h-16 text-red-400/60 mx-auto mb-4" />
+              <p className="text-white/30 text-lg font-display font-semibold">Could not load data</p>
+              <p className="text-white/15 text-sm mt-2">Make sure the backend server is running on port 5185</p>
             </div>
-            <button
-              onClick={() => { setEditing(null); setModalOpen(true); }}
-              className="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
-            >
-              <Plus className="w-4 h-4" /> Add {currentLabel.slice(0, -1)}
-            </button>
-          </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="font-display font-bold text-2xl text-white">{currentLabel}</h1>
+                  <p className="text-white/40 text-sm">{data.length} records</p>
+                </div>
+                <button
+                  onClick={() => { setEditing(null); setModalOpen(true); }}
+                  className="flex items-center gap-2 bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-xl text-sm font-semibold transition"
+                >
+                  <Plus className="w-4 h-4" /> Add {currentLabel.slice(0, -1)}
+                </button>
+              </div>
 
-          <DataTable
-            columns={currentFields.map((f) => ({ key: f.key, label: f.label, render: (row) => row[f.key] }))}
-            data={data}
-            onEdit={(row) => { setEditing(row); setModalOpen(true); }}
-            onDelete={setConfirmDelete}
-          />
+              <DataTable
+                columns={currentFields.map((f) => ({ key: f.key, label: f.label, render: (row) => row[f.key] }))}
+                data={data}
+                onEdit={(row) => { setEditing(row); setModalOpen(true); }}
+                onDelete={setConfirmDelete}
+              />
+            </>
+          )}
         </main>
       </div>
 
